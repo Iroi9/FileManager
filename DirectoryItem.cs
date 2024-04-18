@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.ObjectModel;
+using System.Windows;
 using System.IO;
 
 public class DirectoryItem
@@ -17,6 +18,9 @@ public class DirectoryItem
     {
         try
         {
+            // Clear existing subdirectories before repopulating
+            SubDirectories.Clear();
+
             string[] subdirectoryEntries = Directory.GetDirectories(FullPath);
             foreach (string subdirectory in subdirectoryEntries)
             {
@@ -32,12 +36,11 @@ public class DirectoryItem
         }
         catch (UnauthorizedAccessException)
         {
-            // Handle unauthorized access to directories
+            MessageBox.Show("Access to the directory is denied.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
         catch (DirectoryNotFoundException)
         {
-            // Handle directory not found exception
+            MessageBox.Show("Directory not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }
-

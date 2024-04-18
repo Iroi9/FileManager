@@ -4,23 +4,33 @@
         Title="File Manager" Height="450" Width="800">
     <Grid>
         <!-- TreeView for directory navigation -->
-        <TreeView x:Name="treeView" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="200" SelectedItemChanged="treeView_SelectedItemChanged">
-            <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Directories}">
-                    <TextBlock Text="{Binding Name}" />
-                </HierarchicalDataTemplate>
-            </TreeView.ItemTemplate>
-        </TreeView>
+		<TreeView x:Name="treeView" HorizontalAlignment="Left" VerticalAlignment="Stretch" Width="200" SelectedItemChanged="treeView_SelectedItemChanged">
+			<TreeView.ItemTemplate>
+				<HierarchicalDataTemplate ItemsSource="{Binding SubDirectories}">
+					<TextBlock Text="{Binding Name}" />
+				</HierarchicalDataTemplate>
+			</TreeView.ItemTemplate>
+		</TreeView>
 
-        <!-- ListView for displaying files -->
-        <ListView x:Name="listView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="200,0,0,0">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}" />
-                    <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size}" />
-                    <GridViewColumn Header="Date Modified" DisplayMemberBinding="{Binding DateModified}" />
-                </GridView>
-            </ListView.View>
-        </ListView>
-    </Grid>
+		<!-- ListView for displaying files -->
+		<ListView x:Name="listView" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="200,0,0,0">
+			<ListView.View>
+				<GridView>
+					<GridViewColumn Header="Name" Width="300">
+						<GridViewColumn.CellTemplate>
+							<DataTemplate>
+								<StackPanel Orientation="Horizontal">
+									<TextBlock Text="{Binding Name}" />
+									<TextBlock Text="{Binding Extension}" Foreground="Gray" Margin="5,0,0,0" />
+								</StackPanel>
+							</DataTemplate>
+						</GridViewColumn.CellTemplate>
+					</GridViewColumn>
+					<GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size}" />
+					<GridViewColumn Header="Date Modified" DisplayMemberBinding="{Binding DateModified}" />
+				</GridView>
+			</ListView.View>
+		</ListView>
+
+	</Grid>
 </Window>

@@ -20,11 +20,12 @@ namespace FileManager
             {
                 Directories.Add(new DirectoryItem { Name = drive.Name, FullPath = drive.RootDirectory.FullName });
             }
+
         }
 
         private void treeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
         {
-            var selectedItem = (DirectoryItem)treeView.SelectedItem;
+            DirectoryItem selectedItem = (DirectoryItem)treeView.SelectedItem;
             if (selectedItem != null)
             {
                 PopulateListView(selectedItem.FullPath);
@@ -35,22 +36,52 @@ namespace FileManager
         {
             listView.Items.Clear();
             DirectoryInfo directory = new DirectoryInfo(path);
-            foreach (FileInfo file in directory.GetFiles())
+
+            try
             {
-                listView.Items.Add(new FileItem
+                // Display subdirectories
+                foreach (var subDir in directory.GetDirectories())
                 {
-                    Name = file.Name,
-                    Size = file.Length,
-                    DateModified = file.LastWriteTime
-                });
+                    listView.Items.Add(new FileSystemItem
+                    {
+                        Name = subDir.Name,
+                        IsFolder = true,
+                        DateModified = subDir.LastWriteTime
+                    });
+                }
+
+                // Display files
+                foreach (var file in directory.GetFiles())
+                {
+                    listView.Items.Add(new FileSystemItem
+                    {
+                        Name = file.Name,
+                        Size = file.Length,
+                        IsFolder = false,
+                        DateModified = file.LastWriteTime
+                    });
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Access to the directory is denied.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                MessageBox.Show("Directory not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
-    }
 
-    public class FileItem
+    }
+    public class FileSystemItem
     {
         public string Name { get; set; }
         public long Size { get; set; }
+        public bool IsFolder { get; set; }
         public DateTime DateModified { get; set; }
+        public string Extension => Path.GetExtension(Name); // Compute file extension from the file name
     }
+
+
+
 }
