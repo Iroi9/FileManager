@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Collections.Generic;
+using System.Windows.Shapes;
 
 namespace FileManager
 {
@@ -20,7 +21,7 @@ namespace FileManager
             Directories = new ObservableCollection<DirectoryItem>();
             treeView.ItemsSource = Directories;
 
-            // Load root directories
+          
             foreach (var drive in DriveInfo.GetDrives())
             {
                 var rootDirectory = new DirectoryItem { Name = drive.Name, FullPath = drive.RootDirectory.FullName };
@@ -40,30 +41,30 @@ namespace FileManager
 
         private void PopulateListView(string path)
         {
-            backHistory.Push(path);
+            ;
             listView.Items.Clear();
             DirectoryInfo directory = new DirectoryInfo(path);
 
             try
             {
-                // Display subdirectories
+                
                 foreach (var subDir in directory.GetDirectories())
                 {
-                    // Create a new FileSystemItem object for the subdirectory
+                 
                     FileSystemItem subDirItem = new FileSystemItem
                     {
                         Name = subDir.Name,
-                        FullPath = subDir.FullName, // Assign the full path of the subdirectory
+                        FullPath = subDir.FullName,
                         IsFolder = true,
                         DateModified = subDir.LastWriteTime
                     };
 
-                    // Add the FileSystemItem object to the ListView
+                  
                     listView.Items.Add(subDirItem);
                 }
 
 
-                // Display files
+               
                 foreach (var file in directory.GetFiles())
                 {
                     listView.Items.Add(new FileSystemItem
@@ -101,6 +102,7 @@ namespace FileManager
             FileSystemItem selectedItem = (FileSystemItem)listView.SelectedItem;
             if (selectedItem != null && selectedItem.IsFolder)
             {
+                backHistory.Push(selectedItem.FullPath);
                 listView.Items.Clear();
 
         
@@ -172,7 +174,7 @@ namespace FileManager
         {
             try
             {
-                // Clear existing subdirectories before repopulating
+                
                 SubDirectories.Clear();
 
                 string[] subdirectoryEntries = Directory.GetDirectories(FullPath);
@@ -205,7 +207,7 @@ namespace FileManager
         public long Size { get; set; }
         public bool IsFolder { get; set; }
         public DateTime DateModified { get; set; }
-        public string Extension => Path.GetExtension(Name); 
+        public string Extension => System.IO.Path.GetExtension(Name); 
     }
 
 }

@@ -19,7 +19,7 @@
             </TreeView.ItemTemplate>
         </TreeView>
 
-        <ListView Grid.Column="1" x:Name="listView" VerticalAlignment="Stretch" SelectionChanged="listView_SelectionChanged"  MouseDoubleClick="listView_MouseDoubleClick"
+        <ListView Grid.Column="1" x:Name="listView" VerticalAlignment="Stretch" Margin="0,25,0,0" SelectionChanged="listView_SelectionChanged"  MouseDoubleClick="listView_MouseDoubleClick"
           HorizontalContentAlignment="Stretch">
             <!-- ListView Content -->
             <ListView.View>
@@ -40,18 +40,16 @@
             </ListView.View>
         </ListView>
 
-        
+
 
         <!-- TextBox for displaying file content -->
         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <TextBox x:Name="txtFileContent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True"/>
+            <TextBox x:Name="txtFileContent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True"/>
         </ScrollViewer>
 
-        <Button Grid.Column="2" x:Name="btnBack" Content="Back" VerticalAlignment="Top" HorizontalAlignment="Left"
-                Margin="5" Click="btnBack_Click"/>
+        <Button Grid.Column="1" x:Name="btnBack" Content="Back" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnBack_Click" Width="150"/>
 
-        <Button Grid.Column="2" x:Name="frwBack" Content="Forward" VerticalAlignment="Top" HorizontalAlignment="Right"
-         Margin="5" Click="btnForward_Click"/>
+        <Button Grid.Column="1" x:Name="frwBack" Content="Forward" VerticalAlignment="Top" HorizontalAlignment="Right" Click="btnForward_Click" Width="150"/>
 
     </Grid>
 </Window>
