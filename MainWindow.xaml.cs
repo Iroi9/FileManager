@@ -3,11 +3,15 @@ using System.Windows;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Controls;
+using System.Windows.Input;
+using System.Collections.Generic;
 
 namespace FileManager
 {
     public partial class MainWindow : Window
     {
+        private Stack<string> backHistory = new Stack<string>();
+        private Stack<string> forwardHistory = new Stack<string>();
         public ObservableCollection<DirectoryItem> Directories { get; set; }
 
         public MainWindow()
@@ -20,7 +24,7 @@ namespace FileManager
             foreach (var drive in DriveInfo.GetDrives())
             {
                 var rootDirectory = new DirectoryItem { Name = drive.Name, FullPath = drive.RootDirectory.FullName };
-                rootDirectory.PopulateSubDirectories(); // Populate subdirectories
+                rootDirectory.PopulateSubDirectories();
                 Directories.Add(rootDirectory);
             }
         }
@@ -36,6 +40,7 @@ namespace FileManager
 
         private void PopulateListView(string path)
         {
+            backHistory.Push(path);
             listView.Items.Clear();
             DirectoryInfo directory = new DirectoryInfo(path);
 
@@ -44,13 +49,19 @@ namespace FileManager
                 // Display subdirectories
                 foreach (var subDir in directory.GetDirectories())
                 {
-                    listView.Items.Add(new FileSystemItem
+                    // Create a new FileSystemItem object for the subdirectory
+                    FileSystemItem subDirItem = new FileSystemItem
                     {
                         Name = subDir.Name,
+                        FullPath = subDir.FullName, // Assign the full path of the subdirectory
                         IsFolder = true,
                         DateModified = subDir.LastWriteTime
-                    });
+                    };
+
+                    // Add the FileSystemItem object to the ListView
+                    listView.Items.Add(subDirItem);
                 }
+
 
                 // Display files
                 foreach (var file in directory.GetFiles())
@@ -85,6 +96,19 @@ namespace FileManager
             }
         }
 
+        private void listView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+        {
+            FileSystemItem selectedItem = (FileSystemItem)listView.SelectedItem;
+            if (selectedItem != null && selectedItem.IsFolder)
+            {
+                listView.Items.Clear();
+
+        
+                PopulateListView(selectedItem.FullPath);
+            }
+        }
+
+
         private void DisplayTextFileContent(string filePath)
         {
             try
@@ -95,6 +119,36 @@ namespace FileManager
             catch (Exception ex)
             {
                 MessageBox.Show($"Error reading file content: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void btnBack_Click(object sender, RoutedEventArgs e)
+        {
+            if (backHistory.Count > 1)
+            {
+                forwardHistory.Push(backHistory.Pop());
+                string previousPath = backHistory.Peek();
+                PopulateListView(previousPath);
+            }
+            else
+            {
+                MessageBox.Show("No previous path available.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void btnForward_Click(object sender, RoutedEventArgs e)
+        {
+            if (forwardHistory.Count > 1)
+            {
+                string previousPath = forwardHistory.Pop();
+                
+                
+                    PopulateListView(previousPath);
+                
+            }
+            else
+            {
+                MessageBox.Show("No deeper path available.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 

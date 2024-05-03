@@ -19,7 +19,7 @@
             </TreeView.ItemTemplate>
         </TreeView>
 
-        <ListView Grid.Column="1" x:Name="listView" VerticalAlignment="Stretch" SelectionChanged="listView_SelectionChanged"
+        <ListView Grid.Column="1" x:Name="listView" VerticalAlignment="Stretch" SelectionChanged="listView_SelectionChanged"  MouseDoubleClick="listView_MouseDoubleClick"
           HorizontalContentAlignment="Stretch">
             <!-- ListView Content -->
             <ListView.View>
@@ -40,9 +40,18 @@
             </ListView.View>
         </ListView>
 
+        
+
         <!-- TextBox for displaying file content -->
         <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
             <TextBox x:Name="txtFileContent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="10" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True"/>
         </ScrollViewer>
+
+        <Button Grid.Column="2" x:Name="btnBack" Content="Back" VerticalAlignment="Top" HorizontalAlignment="Left"
+                Margin="5" Click="btnBack_Click"/>
+
+        <Button Grid.Column="2" x:Name="frwBack" Content="Forward" VerticalAlignment="Top" HorizontalAlignment="Right"
+         Margin="5" Click="btnForward_Click"/>
+
     </Grid>
 </Window>
