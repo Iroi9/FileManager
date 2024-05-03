@@ -128,6 +128,7 @@ namespace FileManager
             {
                 forwardHistory.Push(backHistory.Pop());
                 string previousPath = backHistory.Peek();
+                forwardHistory.Push(previousPath); 
                 PopulateListView(previousPath);
             }
             else
@@ -138,13 +139,14 @@ namespace FileManager
 
         private void btnForward_Click(object sender, RoutedEventArgs e)
         {
-            if (forwardHistory.Count > 1)
+            if (forwardHistory.Count >= 1)
             {
+                
                 string previousPath = forwardHistory.Pop();
-                
-                
-                    PopulateListView(previousPath);
-                
+
+
+                string nextPath = forwardHistory.Pop();
+                PopulateListView(nextPath);
             }
             else
             {
