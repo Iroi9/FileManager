@@ -5,7 +5,6 @@ using System.IO;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Collections.Generic;
-using System.Windows.Shapes;
 
 namespace FileManager
 {
@@ -207,7 +206,7 @@ namespace FileManager
         public long Size { get; set; }
         public bool IsFolder { get; set; }
         public DateTime DateModified { get; set; }
-        public string Extension => System.IO.Path.GetExtension(Name); 
+        public string Extension => Path.GetExtension(Name); 
     }
 
 }
