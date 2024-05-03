@@ -14,6 +14,7 @@ public class DirectoryItem
         SubDirectories = new ObservableCollection<DirectoryItem>();
     }
 
+
     public void PopulateSubDirectories()
     {
         try

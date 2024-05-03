@@ -2,6 +2,7 @@
 using System.Windows;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Windows.Controls;
 
 namespace FileManager
 {
@@ -18,9 +19,10 @@ namespace FileManager
             // Load root directories
             foreach (var drive in DriveInfo.GetDrives())
             {
-                Directories.Add(new DirectoryItem { Name = drive.Name, FullPath = drive.RootDirectory.FullName });
+                var rootDirectory = new DirectoryItem { Name = drive.Name, FullPath = drive.RootDirectory.FullName };
+                rootDirectory.PopulateSubDirectories(); // Populate subdirectories
+                Directories.Add(rootDirectory);
             }
-
         }
 
         private void treeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
@@ -56,11 +58,13 @@ namespace FileManager
                     listView.Items.Add(new FileSystemItem
                     {
                         Name = file.Name,
+                        FullPath = file.FullName,
                         Size = file.Length,
                         IsFolder = false,
                         DateModified = file.LastWriteTime
                     });
                 }
+
             }
             catch (UnauthorizedAccessException)
             {
@@ -72,16 +76,80 @@ namespace FileManager
             }
         }
 
+        private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            FileSystemItem selectedItem = (FileSystemItem)listView.SelectedItem;
+            if (selectedItem != null && !selectedItem.IsFolder && selectedItem.Extension == ".txt")
+            {
+                DisplayTextFileContent(selectedItem.FullPath);
+            }
+        }
+
+        private void DisplayTextFileContent(string filePath)
+        {
+            try
+            {
+                string content = File.ReadAllText(filePath);
+                txtFileContent.Text = content;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error reading file content: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+
     }
+
+    public class DirectoryItem
+    {
+        public string Name { get; set; }
+        public string FullPath { get; set; }
+        public ObservableCollection<DirectoryItem> SubDirectories { get; set; }
+
+        public DirectoryItem()
+        {
+            SubDirectories = new ObservableCollection<DirectoryItem>();
+        }
+
+        public void PopulateSubDirectories()
+        {
+            try
+            {
+                // Clear existing subdirectories before repopulating
+                SubDirectories.Clear();
+
+                string[] subdirectoryEntries = Directory.GetDirectories(FullPath);
+                foreach (string subdirectory in subdirectoryEntries)
+                {
+                    DirectoryInfo directoryInfo = new DirectoryInfo(subdirectory);
+                    var subDirectoryItem = new DirectoryItem
+                    {
+                        Name = directoryInfo.Name,
+                        FullPath = directoryInfo.FullName
+                    };
+                    SubDirectories.Add(subDirectoryItem);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                MessageBox.Show("Access to the directory is denied.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                MessageBox.Show("Directory not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+    }
+
     public class FileSystemItem
     {
         public string Name { get; set; }
+        public string FullPath { get; set; }
         public long Size { get; set; }
         public bool IsFolder { get; set; }
         public DateTime DateModified { get; set; }
-        public string Extension => Path.GetExtension(Name); // Compute file extension from the file name
+        public string Extension => Path.GetExtension(Name); 
     }
-
-
 
 }

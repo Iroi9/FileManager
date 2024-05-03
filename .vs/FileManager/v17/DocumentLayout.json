@@ -7,10 +7,6 @@
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:MainWindow.xaml.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\FileManager\\FileManager\\FileManager\\DirectoryItem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:DirectoryItem.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|E:\\FileManager\\FileManager\\FileManager\\MainWindow.xaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}",
       "RelativeMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|solutionrelative:MainWindow.xaml||{FA3CD31E-987B-443A-9B81-186104E8DAC1}"
     }
@@ -22,31 +18,19 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "MainWindow.xaml",
               "DocumentMoniker": "E:\\FileManager\\FileManager\\FileManager\\MainWindow.xaml",
               "RelativeDocumentMoniker": "MainWindow.xaml",
               "ToolTip": "E:\\FileManager\\FileManager\\FileManager\\MainWindow.xaml",
               "RelativeToolTip": "MainWindow.xaml",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAACAAAAANAAAA",
+              "ViewState": "AQIAAAQAAAAAAAAAAAAgwCQAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003549|",
-              "WhenOpened": "2024-04-18T21:01:37.21Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "DirectoryItem.cs",
-              "DocumentMoniker": "E:\\FileManager\\FileManager\\FileManager\\DirectoryItem.cs",
-              "RelativeDocumentMoniker": "DirectoryItem.cs",
-              "ToolTip": "E:\\FileManager\\FileManager\\FileManager\\DirectoryItem.cs",
-              "RelativeToolTip": "DirectoryItem.cs",
-              "ViewState": "AQIAACEAAAAAAAAAAAAAABMAAAAJAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-04-18T16:06:08.57Z",
+              "WhenOpened": "2024-04-18T21:01:37.21Z",
               "EditorCaption": ""
             },
             {
@@ -57,7 +41,7 @@
               "RelativeDocumentMoniker": "MainWindow.xaml.cs",
               "ToolTip": "E:\\FileManager\\FileManager\\FileManager\\MainWindow.xaml.cs",
               "RelativeToolTip": "MainWindow.xaml.cs",
-              "ViewState": "AQIAAAsAAAAAAAAAAAAAAAsAAAADAAAA",
+              "ViewState": "AQIAADkAAAAAAAAAAAAYwEoAAAAFAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-04-14T13:20:20.011Z",
               "EditorCaption": ""

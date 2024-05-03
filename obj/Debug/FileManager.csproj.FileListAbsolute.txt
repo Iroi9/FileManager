@@ -12,3 +12,5 @@ E:\FileManager\FileManager\FileManager\obj\Debug\FileManager.csproj.GenerateReso
 E:\FileManager\FileManager\FileManager\obj\Debug\FileManager.csproj.CoreCompileInputs.cache
 E:\FileManager\FileManager\FileManager\obj\Debug\FileManager.exe
 E:\FileManager\FileManager\FileManager\obj\Debug\FileManager.pdb
+E:\FileManager\FileManager\FileManager\obj\Debug\GeneratedInternalTypeHelper.g.cs
+E:\FileManager\FileManager\FileManager\obj\Debug\FileManager_MarkupCompile.lref
