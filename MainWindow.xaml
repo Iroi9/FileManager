@@ -10,7 +10,6 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <!-- TreeView for directory navigation -->
         <TreeView Grid.Column="0" x:Name="treeView" VerticalAlignment="Stretch" SelectedItemChanged="treeView_SelectedItemChanged">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding SubDirectories}">
@@ -20,11 +19,11 @@
         </TreeView>
 
         <ListView Grid.Column="1" x:Name="listView" VerticalAlignment="Stretch" Margin="0,25,0,0" SelectionChanged="listView_SelectionChanged"  MouseDoubleClick="listView_MouseDoubleClick"
-          HorizontalContentAlignment="Stretch">
-            <!-- ListView Content -->
+                  HorizontalContentAlignment="Stretch">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Name" Width="300">
+                    <GridViewColumn Width="300">
+                        <GridViewColumnHeader Content="Name" Click="NameColumnHeader_Click"/>
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -34,22 +33,39 @@
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
-                    <GridViewColumn Header="Size" DisplayMemberBinding="{Binding Size}" />
-                    <GridViewColumn Header="Date Modified" DisplayMemberBinding="{Binding DateModified}" />
+                    <GridViewColumn Width="50">
+                        <GridViewColumnHeader Content="Size" Click="SizeColumnHeader_Click"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Size}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn>
+                        <GridViewColumnHeader Content="Date Modified" Click="DateModifiedColumnHeader_Click"/>
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding DateModified}" />
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>
 
-
-
-        <!-- TextBox for displaying file content -->
-        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-            <TextBox x:Name="txtFileContent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True"/>
-        </ScrollViewer>
-
         <Button Grid.Column="1" x:Name="btnBack" Content="Back" VerticalAlignment="Top" HorizontalAlignment="Left" Click="btnBack_Click" Width="150"/>
 
         <Button Grid.Column="1" x:Name="frwBack" Content="Forward" VerticalAlignment="Top" HorizontalAlignment="Right" Click="btnForward_Click" Width="150"/>
+
+        <ScrollViewer Grid.Column="2" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+            <TextBox x:Name="txtFileContent" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,15,0,0" TextWrapping="Wrap" AcceptsReturn="True" IsReadOnly="True"/>
+        </ScrollViewer>
+
+        <ScrollViewer Grid.Column="2" Width="300" Height="18" VerticalAlignment="Top" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" RenderTransformOrigin="0.493,3.02">
+            <TextBox x:Name="searchField" TextWrapping="NoWrap" AcceptsReturn="False" IsReadOnly="False" TextChanged="searchField_TextChanged"/>
+        </ScrollViewer>
+
+        <Button Grid.Column="2" x:Name="searchBtn" Content="S" VerticalAlignment="Top" HorizontalAlignment="Right" Click="btnForward_Click" Width="21" Height="18"/>
 
     </Grid>
 </Window>

@@ -5,6 +5,7 @@ using System.IO;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FileManager
 {
@@ -12,15 +13,18 @@ namespace FileManager
     {
         private Stack<string> backHistory = new Stack<string>();
         private Stack<string> forwardHistory = new Stack<string>();
+        int orientation = 0;
         public ObservableCollection<DirectoryItem> Directories { get; set; }
+        public ObservableCollection<FileSystemItem> FileSystem { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
             Directories = new ObservableCollection<DirectoryItem>();
+            FileSystem = new ObservableCollection<FileSystemItem>();
             treeView.ItemsSource = Directories;
 
-          
+
             foreach (var drive in DriveInfo.GetDrives())
             {
                 var rootDirectory = new DirectoryItem { Name = drive.Name, FullPath = drive.RootDirectory.FullName };
@@ -35,29 +39,29 @@ namespace FileManager
             if (selectedItem != null)
             {
                 PopulateListView(selectedItem.FullPath);
+                backHistory.Push(selectedItem.FullPath);
             }
         }
 
         private void PopulateListView(string path)
         {
-            ;
+            
             listView.Items.Clear();
+            if (FileSystem.Count != 0)
+            {
+                FileSystem = new ObservableCollection<FileSystemItem>();
+            }
             DirectoryInfo directory = new DirectoryInfo(path);
 
             try
             {
-                
+
+
                 foreach (var subDir in directory.GetDirectories())
                 {
                  
-                    FileSystemItem subDirItem = new FileSystemItem
-                    {
-                        Name = subDir.Name,
-                        FullPath = subDir.FullName,
-                        IsFolder = true,
-                        DateModified = subDir.LastWriteTime
-                    };
-
+                    FileSystemItem subDirItem = new FileSystemItem(subDir.Name,subDir.FullName,subDir.LastWriteTime);
+                    FileSystem.Add(subDirItem);
                   
                     listView.Items.Add(subDirItem);
                 }
@@ -66,14 +70,10 @@ namespace FileManager
                
                 foreach (var file in directory.GetFiles())
                 {
-                    listView.Items.Add(new FileSystemItem
-                    {
-                        Name = file.Name,
-                        FullPath = file.FullName,
-                        Size = file.Length,
-                        IsFolder = false,
-                        DateModified = file.LastWriteTime
-                    });
+
+                    FileSystemItem subFile = new FileSystemItem(file.Name, file.FullName, file.LastWriteTime, false, file.Length);
+                    FileSystem.Add(subFile);
+                    listView.Items.Add(subFile);
                 }
 
             }
@@ -84,6 +84,15 @@ namespace FileManager
             catch (DirectoryNotFoundException)
             {
                 MessageBox.Show("Directory not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void PopulateListView()
+        {
+            listView.Items.Clear();
+            foreach(var item in FileSystem)
+            {
+                listView.Items.Add(item);                
             }
         }
 
@@ -129,7 +138,6 @@ namespace FileManager
             {
                 forwardHistory.Push(backHistory.Pop());
                 string previousPath = backHistory.Peek();
-                forwardHistory.Push(previousPath); 
                 PopulateListView(previousPath);
             }
             else
@@ -138,14 +146,75 @@ namespace FileManager
             }
         }
 
+        private void NameColumnHeader_Click(object sender, RoutedEventArgs e)
+        {
+            SortListView("Name");
+        }
+
+        private void SizeColumnHeader_Click(object sender, RoutedEventArgs e)
+        {
+            SortListView("Size");
+        }
+
+        private void DateModifiedColumnHeader_Click(object sender, RoutedEventArgs e)
+        {
+            SortListView("DateModified");
+        }
+
+        private void SortListView(string sortBy)
+        {
+            switch (sortBy)
+            {
+                case "Name":
+
+                    if (orientation == 0) {
+                        FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderByDescending(item => item.Name));
+                        PopulateListView();
+                        orientation = 1;
+                    }
+                    else
+                    {
+                        FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderBy(item => item.Name));
+                        PopulateListView();
+                        orientation = 0;
+                    }
+                    break;
+                case "Size":
+                    if (orientation == 0)
+                    {
+                        FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderByDescending(item => item.Size));
+                        PopulateListView();
+                        orientation = 1;
+                    }
+                    else
+                    {
+                        FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderBy(item => item.Size));
+                        PopulateListView();
+                        orientation = 0;
+                    }
+                    break;
+                case "DateModified":
+                    if (orientation == 0)
+                    {
+                        FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderByDescending(item => item.DateModified));
+                        PopulateListView();
+                        orientation = 1;
+                    }else
+                    {
+                        FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderBy(item => item.DateModified));
+                        PopulateListView();
+                        orientation = 0;
+                    }
+                    break;
+            }
+        }
+
+
+
         private void btnForward_Click(object sender, RoutedEventArgs e)
         {
             if (forwardHistory.Count >= 1)
             {
-                
-                string previousPath = forwardHistory.Pop();
-
-
                 string nextPath = forwardHistory.Pop();
                 PopulateListView(nextPath);
             }
@@ -155,7 +224,10 @@ namespace FileManager
             }
         }
 
+        private void searchField_TextChanged(object sender, TextChangedEventArgs e)
+        {
 
+        }
     }
 
     public class DirectoryItem
@@ -201,12 +273,46 @@ namespace FileManager
 
     public class FileSystemItem
     {
+
+        public FileSystemItem(string name, string FullPath, DateTime dateTime, bool isFolder = true, long size = 0)
+        {
+            Name = name;
+            this.FullPath = FullPath;
+            this.IsFolder = isFolder;
+            DateModified = dateTime;
+            Size = FileSizeFormatter.FormatFileSize(size);
+        }
+        public FileSystemItem()
+        {
+
+        }
         public string Name { get; set; }
         public string FullPath { get; set; }
-        public long Size { get; set; }
+        public string Size { get; set; }
         public bool IsFolder { get; set; }
         public DateTime DateModified { get; set; }
         public string Extension => Path.GetExtension(Name); 
     }
+
+    public static class FileSizeFormatter
+    {
+        public static string FormatFileSize(long fileSize)
+        {
+            const int scale = 1024;
+            string[] orders = new string[] { "GB", "MB", "KB", "Bytes" };
+            long max = (long)Math.Pow(scale, orders.Length - 1);
+
+            foreach (string order in orders)
+            {
+                if (fileSize > max)
+                    return string.Format("{0:##.##} {1}", decimal.Divide(fileSize, max), order);
+
+                max /= scale;
+            }
+
+            return "";
+        }
+    }
+
 
 }
