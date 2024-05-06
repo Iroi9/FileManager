@@ -31,7 +31,7 @@ public class DirectoryItem
                     Name = directoryInfo.Name,
                     FullPath = directoryInfo.FullName
                 };
-                subDirectoryItem.PopulateSubDirectories(); // Recursively populate subdirectories
+                subDirectoryItem.PopulateSubDirectories();
                 SubDirectories.Add(subDirectoryItem);
             }
         }

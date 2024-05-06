@@ -2,10 +2,10 @@
 using System.Windows;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Windows.Controls;
 using System.Windows.Input;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace FileManager
 {
@@ -13,15 +13,18 @@ namespace FileManager
     {
         private Stack<string> backHistory = new Stack<string>();
         private Stack<string> forwardHistory = new Stack<string>();
-        int orientation = 0;
+        bool orientation = false;
+        bool searchOrientation = false;
         public ObservableCollection<DirectoryItem> Directories { get; set; }
         public ObservableCollection<FileSystemItem> FileSystem { get; set; }
+        public ObservableCollection<FileSystemItem> search { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
             Directories = new ObservableCollection<DirectoryItem>();
             FileSystem = new ObservableCollection<FileSystemItem>();
+            search = new ObservableCollection<FileSystemItem>();
             treeView.ItemsSource = Directories;
 
 
@@ -96,18 +99,28 @@ namespace FileManager
             }
         }
 
-        private void listView_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        private void PopulateSearchListView()
         {
-            FileSystemItem selectedItem = (FileSystemItem)listView.SelectedItem;
-            if (selectedItem != null && !selectedItem.IsFolder && selectedItem.Extension == ".txt")
+            listViewSearch.Items.Clear();
+            foreach (var item in search)
             {
-                DisplayTextFileContent(selectedItem.FullPath);
+                listViewSearch.Items.Add(item);
             }
         }
 
         private void listView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            FileSystemItem selectedItem = (FileSystemItem)listView.SelectedItem;
+            FileSystemItem selectedItem;
+            if (sender.Equals(listView))
+            {
+                selectedItem = (FileSystemItem)listView.SelectedItem;
+            }
+            else 
+            {
+                selectedItem = (FileSystemItem)listViewSearch.SelectedItem;
+            }
+
+            
             if (selectedItem != null && selectedItem.IsFolder)
             {
                 backHistory.Push(selectedItem.FullPath);
@@ -116,19 +129,22 @@ namespace FileManager
         
                 PopulateListView(selectedItem.FullPath);
             }
-        }
 
-
-        private void DisplayTextFileContent(string filePath)
-        {
-            try
+            if (selectedItem != null && !selectedItem.IsFolder && selectedItem.Extension == ".txt")
             {
-                string content = File.ReadAllText(filePath);
-                txtFileContent.Text = content;
+                ChildWindow childWindow = new ChildWindow();
+                childWindow.Owner = this;
+                childWindow.DisplayTextFileContent(selectedItem.FullPath);
+                childWindow.ShowDialog();
+               
             }
-            catch (Exception ex)
+
+            if(selectedItem != null && !selectedItem.IsFolder && selectedItem.Extension == ".pdf") 
             {
-                MessageBox.Show($"Error reading file content: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                ChildWindow childWindow = new ChildWindow();
+                childWindow.Owner = this;
+                childWindow.DisplayPdfContent(selectedItem.FullPath);
+                
             }
         }
 
@@ -143,6 +159,19 @@ namespace FileManager
             else
             {
                 MessageBox.Show("No previous path available.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+        }
+
+        private void btnForward_Click(object sender, RoutedEventArgs e)
+        {
+            if (forwardHistory.Count >= 1)
+            {
+                string nextPath = forwardHistory.Pop();
+                PopulateListView(nextPath);
+            }
+            else
+            {
+                MessageBox.Show("No deeper path available.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
 
@@ -167,67 +196,191 @@ namespace FileManager
             {
                 case "Name":
 
-                    if (orientation == 0) {
+                    if (!orientation) {
                         FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderByDescending(item => item.Name));
                         PopulateListView();
-                        orientation = 1;
+                        orientation = true;
                     }
                     else
                     {
                         FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderBy(item => item.Name));
                         PopulateListView();
-                        orientation = 0;
+                        orientation = false;
                     }
                     break;
                 case "Size":
-                    if (orientation == 0)
+                    if (!orientation)
                     {
                         FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderByDescending(item => item.Size));
                         PopulateListView();
-                        orientation = 1;
+                        orientation = true;
                     }
                     else
                     {
                         FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderBy(item => item.Size));
                         PopulateListView();
-                        orientation = 0;
+                        orientation = false;
                     }
                     break;
                 case "DateModified":
-                    if (orientation == 0)
+                    if (!orientation)
                     {
                         FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderByDescending(item => item.DateModified));
                         PopulateListView();
-                        orientation = 1;
+                        orientation = true;
                     }else
                     {
                         FileSystem = new ObservableCollection<FileSystemItem>(FileSystem.OrderBy(item => item.DateModified));
                         PopulateListView();
-                        orientation = 0;
+                        orientation = false;
+                    }
+                    break;
+            }
+        }
+
+        private void SearchNameColumnHeader_Click(object sender, RoutedEventArgs e)
+        {
+            SearchSortListView("Name");
+        }
+
+        private void SearchSizeColumnHeader_Click(object sender, RoutedEventArgs e)
+        {
+            SearchSortListView("Size");
+        }
+
+        private void SearchDateModifiedColumnHeader_Click(object sender, RoutedEventArgs e)
+        {
+            SearchSortListView("DateModified");
+        }
+
+        private void SearchSortListView(string sortBy)
+        {
+            switch (sortBy)
+            {
+                case "Name":
+
+                    if (!searchOrientation)
+                    {
+                        search = new ObservableCollection<FileSystemItem>(search.OrderByDescending(item => item.Name));
+                        PopulateSearchListView();
+                        searchOrientation = true;
+                    }
+                    else
+                    {
+                        search = new ObservableCollection<FileSystemItem>(search.OrderBy(item => item.Name));
+                        PopulateSearchListView();
+                        searchOrientation = false;
+                    }
+                    break;
+                case "Size":
+                    if (!searchOrientation)
+                    {
+                        search = new ObservableCollection<FileSystemItem>(search.OrderByDescending(item => item.Size));
+                        PopulateSearchListView();
+                        searchOrientation = true;
+                    }
+                    else
+                    {
+                        search = new ObservableCollection<FileSystemItem>(search.OrderBy(item => item.Size));
+                        PopulateSearchListView();
+                        searchOrientation = false;
+                    }
+                    break;
+                case "DateModified":
+                    if (!searchOrientation)
+                    {
+                        search = new ObservableCollection<FileSystemItem>(search.OrderByDescending(item => item.DateModified));
+                        PopulateSearchListView();
+                        searchOrientation = true;
+                    }
+                    else
+                    {
+                        search = new ObservableCollection<FileSystemItem>(search.OrderBy(item => item.DateModified));
+                        PopulateSearchListView();
+                        searchOrientation = false;
                     }
                     break;
             }
         }
 
 
-
-        private void btnForward_Click(object sender, RoutedEventArgs e)
+        private async void btnSearch_Click(object sender, RoutedEventArgs e)
         {
-            if (forwardHistory.Count >= 1)
+            listViewSearch.Items.Clear();
+            string text = searchField.Text;
+            if(text == "")
             {
-                string nextPath = forwardHistory.Pop();
-                PopulateListView(nextPath);
+                MessageBox.Show("The searchfield is empty", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
             }
-            else
+            DriveInfo[] allDrives = DriveInfo.GetDrives();
+            foreach (DriveInfo drive in allDrives)
             {
-                MessageBox.Show("No deeper path available.", "Information", MessageBoxButton.OK, MessageBoxImage.Information);
+               await PopulateSearchView(drive.RootDirectory.Name , text);
+            }
+
+            foreach (FileSystemItem f in listViewSearch.Items)
+                search.Add(f);
+
+            if (listViewSearch.Items.Count == 0)
+            {
+                MessageBox.Show("No search result found.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+
+
+
+        }
+        //TODO Go trough all filse
+        private async Task PopulateSearchView(string path, string text)
+        {
+            try
+            {
+                await GetFiles(path, text);
+                await GetDirs(path, text);
+            }
+            catch (UnauthorizedAccessException)
+            {
+                //MessageBox.Show("Access to the directory is denied.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch (DirectoryNotFoundException)
+            {
+                //MessageBox.Show("Directory not found.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+           
+        }
+
+        private async Task GetFiles(string path, string text)
+        {
+            foreach (var file in Directory.GetFiles(path))
+            {
+                FileInfo fileInfo = new FileInfo(file);
+                FileSystemItem subFile = new FileSystemItem(fileInfo.Name, fileInfo.FullName, fileInfo.LastWriteTime, false, fileInfo.Length);
+                if (subFile != null && subFile.Name.Contains(text) || subFile.Extension.Contains(text))
+                {
+                    listViewSearch.Items.Add(subFile);
+                }
             }
         }
 
-        private void searchField_TextChanged(object sender, TextChangedEventArgs e)
+        private async Task GetDirs(string path,string text)
         {
-
+            foreach (var subDir in Directory.GetDirectories(path))
+            {
+                DirectoryInfo directoryInfo = new DirectoryInfo(subDir);
+              
+                
+                FileSystemItem subDirItem = new FileSystemItem(directoryInfo.Name, directoryInfo.FullName, directoryInfo.LastWriteTime);
+                if (subDirItem != null && subDirItem.Name.Contains(text))
+                {
+                    await GetFiles(subDirItem.FullPath, text);
+                    listViewSearch.Items.Add(subDirItem);
+                    await PopulateSearchView(subDirItem.FullPath, text);
+                }
+               
+            }
         }
+
+
     }
 
     public class DirectoryItem
@@ -240,7 +393,7 @@ namespace FileManager
         {
             SubDirectories = new ObservableCollection<DirectoryItem>();
         }
-
+   
         public void PopulateSubDirectories()
         {
             try
@@ -291,7 +444,7 @@ namespace FileManager
         public string Size { get; set; }
         public bool IsFolder { get; set; }
         public DateTime DateModified { get; set; }
-        public string Extension => Path.GetExtension(Name); 
+        public string Extension => System.IO.Path.GetExtension(Name); 
     }
 
     public static class FileSizeFormatter
@@ -313,6 +466,4 @@ namespace FileManager
             return "";
         }
     }
-
-
 }
