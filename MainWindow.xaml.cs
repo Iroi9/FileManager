@@ -6,6 +6,7 @@ using System.Windows.Input;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace FileManager
 {
@@ -17,14 +18,17 @@ namespace FileManager
         bool searchOrientation = false;
         public ObservableCollection<DirectoryItem> Directories { get; set; }
         public ObservableCollection<FileSystemItem> FileSystem { get; set; }
-        public ObservableCollection<FileSystemItem> search { get; set; }
+        public ObservableCollection<FileSystemItem> Search { get; set; }
+
+        public ObservableCollection<FileSystemItem> Favorite { get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
             Directories = new ObservableCollection<DirectoryItem>();
             FileSystem = new ObservableCollection<FileSystemItem>();
-            search = new ObservableCollection<FileSystemItem>();
+            Search = new ObservableCollection<FileSystemItem>();
+            Favorite = new ObservableCollection<FileSystemItem>();
             treeView.ItemsSource = Directories;
 
 
@@ -33,6 +37,72 @@ namespace FileManager
                 var rootDirectory = new DirectoryItem { Name = drive.Name, FullPath = drive.RootDirectory.FullName };
                 rootDirectory.PopulateSubDirectories();
                 Directories.Add(rootDirectory);
+            }
+
+            LoadFavorite();
+        }
+
+        private void LoadFavorite()
+        {
+            try
+            {
+                if (File.Exists("favorites.txt"))
+                {
+                    string[] lines = File.ReadAllLines("favorites.txt");
+                    foreach (string line in lines)
+                    {
+                        if (Directory.Exists(line))
+                        {
+                            DirectoryInfo directoryInfo = new DirectoryInfo(line);
+                            FileSystemItem directoryItem = new FileSystemItem(directoryInfo.Name, directoryInfo.FullName, directoryInfo.LastWriteTime, true, 0);
+                            Favorite.Add(directoryItem);
+                            favlistView.Items.Add(directoryItem);
+                        }
+                        else if (File.Exists(line))
+                        {
+                            FileInfo fileInfo = new FileInfo(line);
+                            FileSystemItem fileItem = new FileSystemItem(fileInfo.Name, fileInfo.FullName, fileInfo.LastWriteTime, false, fileInfo.Length);
+                            Favorite.Add(fileItem);
+                            favlistView.Items.Add(fileItem);
+                        }
+                        else
+                        {
+                          
+                            MessageBox.Show($"Favorite item '{line}' does not exist.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error loading favorite: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        private void AddFavorite(FileSystemItem file)
+        {
+            favlistView.Items.Add(file);
+            Favorite.Add(file);
+            SaveFavorite();
+        }
+        private void RemoveFavorite(FileSystemItem file)
+        {
+            favlistView.Items.Remove(file);
+            Favorite.Remove(file);
+            SaveFavorite();
+        }
+
+        
+        private void SaveFavorite()
+        {
+            try
+            {
+                List<string> lines = Favorite.Select(fd => $"{fd.FullPath}").ToList();
+                File.WriteAllLines("favorites.txt", lines);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error saving favorite directories: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -102,7 +172,7 @@ namespace FileManager
         private void PopulateSearchListView()
         {
             listViewSearch.Items.Clear();
-            foreach (var item in search)
+            foreach (var item in Search)
             {
                 listViewSearch.Items.Add(item);
             }
@@ -130,24 +200,42 @@ namespace FileManager
                 PopulateListView(selectedItem.FullPath);
             }
 
-            if (selectedItem != null && !selectedItem.IsFolder && selectedItem.Extension == ".txt")
+            if(selectedItem != null && !selectedItem.IsFolder) 
             {
-                ChildWindow childWindow = new ChildWindow();
-                childWindow.Owner = this;
-                childWindow.DisplayTextFileContent(selectedItem.FullPath);
-                childWindow.ShowDialog();
-               
-            }
+                try
+                {
+                    Process.Start(selectedItem.FullPath);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Error reading file content: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
 
-            if(selectedItem != null && !selectedItem.IsFolder && selectedItem.Extension == ".pdf") 
-            {
-                ChildWindow childWindow = new ChildWindow();
-                childWindow.Owner = this;
-                childWindow.DisplayPdfContent(selectedItem.FullPath);
-                
             }
         }
 
+        private void AddFavBtn_Click(object sender, RoutedEventArgs e)
+        {
+            FileSystemItem selectedItem = (FileSystemItem)listView.SelectedItem;
+            FileSystemItem searchSelectedItem = (FileSystemItem)listViewSearch.SelectedItem;
+            if (selectedItem != null) 
+            {
+                AddFavorite(selectedItem);
+            }
+            if(searchSelectedItem != null)
+            {
+                AddFavorite(searchSelectedItem);
+            }
+        }
+
+        private void RemoveFavBtn_Click(object sender, RoutedEventArgs e)
+        {
+            FileSystemItem selectedItem = (FileSystemItem)favlistView.SelectedItem;
+            if(selectedItem != null)
+            {
+                RemoveFavorite(selectedItem);
+            }
+        }
         private void btnBack_Click(object sender, RoutedEventArgs e)
         {
             if (backHistory.Count > 1)
@@ -261,13 +349,13 @@ namespace FileManager
 
                     if (!searchOrientation)
                     {
-                        search = new ObservableCollection<FileSystemItem>(search.OrderByDescending(item => item.Name));
+                        Search = new ObservableCollection<FileSystemItem>(Search.OrderByDescending(item => item.Name));
                         PopulateSearchListView();
                         searchOrientation = true;
                     }
                     else
                     {
-                        search = new ObservableCollection<FileSystemItem>(search.OrderBy(item => item.Name));
+                        Search = new ObservableCollection<FileSystemItem>(Search.OrderBy(item => item.Name));
                         PopulateSearchListView();
                         searchOrientation = false;
                     }
@@ -275,13 +363,13 @@ namespace FileManager
                 case "Size":
                     if (!searchOrientation)
                     {
-                        search = new ObservableCollection<FileSystemItem>(search.OrderByDescending(item => item.Size));
+                        Search = new ObservableCollection<FileSystemItem>(Search.OrderByDescending(item => item.Size));
                         PopulateSearchListView();
                         searchOrientation = true;
                     }
                     else
                     {
-                        search = new ObservableCollection<FileSystemItem>(search.OrderBy(item => item.Size));
+                        Search = new ObservableCollection<FileSystemItem>(Search.OrderBy(item => item.Size));
                         PopulateSearchListView();
                         searchOrientation = false;
                     }
@@ -289,13 +377,13 @@ namespace FileManager
                 case "DateModified":
                     if (!searchOrientation)
                     {
-                        search = new ObservableCollection<FileSystemItem>(search.OrderByDescending(item => item.DateModified));
+                        Search = new ObservableCollection<FileSystemItem>(Search.OrderByDescending(item => item.DateModified));
                         PopulateSearchListView();
                         searchOrientation = true;
                     }
                     else
                     {
-                        search = new ObservableCollection<FileSystemItem>(search.OrderBy(item => item.DateModified));
+                        Search = new ObservableCollection<FileSystemItem>(Search.OrderBy(item => item.DateModified));
                         PopulateSearchListView();
                         searchOrientation = false;
                     }
@@ -308,7 +396,7 @@ namespace FileManager
         {
             listViewSearch.Items.Clear();
             string text = searchField.Text;
-            if(text == "")
+            if(String.Empty == text)
             {
                 MessageBox.Show("The searchfield is empty", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
                 return;
@@ -320,7 +408,7 @@ namespace FileManager
             }
 
             foreach (FileSystemItem f in listViewSearch.Items)
-                search.Add(f);
+                Search.Add(f);
 
             if (listViewSearch.Items.Count == 0)
             {
@@ -330,12 +418,12 @@ namespace FileManager
 
 
         }
-        //TODO Go trough all filse
+
         private async Task PopulateSearchView(string path, string text)
         {
             try
             {
-                await GetFiles(path, text);
+                GetFiles(path, text);
                 await GetDirs(path, text);
             }
             catch (UnauthorizedAccessException)
@@ -349,7 +437,7 @@ namespace FileManager
            
         }
 
-        private async Task GetFiles(string path, string text)
+        private void GetFiles(string path, string text)
         {
             foreach (var file in Directory.GetFiles(path))
             {
@@ -372,7 +460,7 @@ namespace FileManager
                 FileSystemItem subDirItem = new FileSystemItem(directoryInfo.Name, directoryInfo.FullName, directoryInfo.LastWriteTime);
                 if (subDirItem != null && subDirItem.Name.Contains(text))
                 {
-                    await GetFiles(subDirItem.FullPath, text);
+                    GetFiles(subDirItem.FullPath, text);
                     listViewSearch.Items.Add(subDirItem);
                     await PopulateSearchView(subDirItem.FullPath, text);
                 }
@@ -444,7 +532,7 @@ namespace FileManager
         public string Size { get; set; }
         public bool IsFolder { get; set; }
         public DateTime DateModified { get; set; }
-        public string Extension => System.IO.Path.GetExtension(Name); 
+        public string Extension => Path.GetExtension(Name); 
     }
 
     public static class FileSizeFormatter

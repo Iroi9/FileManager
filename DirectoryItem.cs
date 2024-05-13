@@ -19,7 +19,7 @@ public class DirectoryItem
     {
         try
         {
-            // Clear existing subdirectories before repopulating
+            
             SubDirectories.Clear();
 
             string[] subdirectoryEntries = Directory.GetDirectories(FullPath);
