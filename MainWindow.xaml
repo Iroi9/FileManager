@@ -18,7 +18,7 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <TreeView Grid.Column="0" x:Name="treeView" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,0,240" SelectedItemChanged="treeView_SelectedItemChanged">
+        <TreeView Grid.Column="0" x:Name="treeView" HorizontalAlignment="Stretch" Margin="0,0,0,210" SelectedItemChanged="treeView_SelectedItemChanged">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding SubDirectories}">
                     <StackPanel Orientation="Horizontal">
@@ -29,7 +29,7 @@
             </TreeView.ItemTemplate>
         </TreeView>
 
-        <ListView Grid.Column="0" x:Name="favlistView" Margin="0,245,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <ListView Grid.Column="0" x:Name="favlistView" Margin="0,250,0,0" HorizontalAlignment="Stretch"  MouseDoubleClick="listView_MouseDoubleClick"
              HorizontalContentAlignment="Stretch">
             <ListView.View>
                 <GridView>
@@ -48,8 +48,8 @@
             </ListView.View>
         </ListView>
 
-        <Button  Grid.Column="0"  Content="Add Favorite" Background="LightYellow" Foreground="Black" Click="AddFavBtn_Click"  VerticalAlignment="Center" HorizontalAlignment="Left" Width="100" Height="30"/>
-        <Button  Grid.Column="0"  Content="Remove Favorite" Background="DarkRed" Foreground="Black" Click="RemoveFavBtn_Click" VerticalAlignment="Center" HorizontalAlignment="Right" Width="100" Height="30"/>
+        <Button  Grid.Column="0"  Content="Add Favorite" Background="LightYellow" Foreground="Black" Click="AddFavBtn_Click"  VerticalAlignment="Bottom" HorizontalAlignment="Left" Width="100" Height="30"/>
+        <Button  Grid.Column="0"  Content="Remove Favorite" Background="DarkRed" Foreground="Black" Click="RemoveFavBtn_Click" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="100" Height="30"/>
 
         <ListView Grid.Column="1" x:Name="listView" VerticalAlignment="Stretch" Margin="0,50,0,0" MouseDoubleClick="listView_MouseDoubleClick"
                   HorizontalContentAlignment="Stretch" Style="{StaticResource MyListViewStyle}">

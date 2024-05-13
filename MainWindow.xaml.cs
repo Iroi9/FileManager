@@ -81,6 +81,11 @@ namespace FileManager
 
         private void AddFavorite(FileSystemItem file)
         {
+            if (Favorite.Contains(file))
+            {
+                MessageBox.Show($"File already is a Favorite.", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
             favlistView.Items.Add(file);
             Favorite.Add(file);
             SaveFavorite();
@@ -185,9 +190,13 @@ namespace FileManager
             {
                 selectedItem = (FileSystemItem)listView.SelectedItem;
             }
-            else 
+            else if(sender.Equals(listViewSearch)) 
             {
                 selectedItem = (FileSystemItem)listViewSearch.SelectedItem;
+            }
+            else
+            {
+                selectedItem = (FileSystemItem)favlistView.SelectedItem;
             }
 
             
@@ -226,6 +235,10 @@ namespace FileManager
             {
                 AddFavorite(searchSelectedItem);
             }
+            if(selectedItem == null && searchSelectedItem == null)
+            {
+                MessageBox.Show($"No item selected" ,"Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
         }
 
         private void RemoveFavBtn_Click(object sender, RoutedEventArgs e)
@@ -234,6 +247,10 @@ namespace FileManager
             if(selectedItem != null)
             {
                 RemoveFavorite(selectedItem);
+            }
+            else
+            {
+                MessageBox.Show($"No item selected", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
             }
         }
         private void btnBack_Click(object sender, RoutedEventArgs e)
